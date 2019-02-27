@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
 
@@ -13,4 +13,4 @@ services:
     environment:
       - FLASK_APP=project/__init__.py
       - FLASK_ENV=development
-      - COMPOSE_CONVERT_WINDOWS_PATHS=1
+      - APP_SETTINGS=project.config.DevelopmentConfig
