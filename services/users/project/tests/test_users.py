@@ -6,8 +6,8 @@ from project.api.models import User
 from project.tests.base import BaseTestCase
 
 
-def add_user(username, email):
-    user = User(username=username, email=email)
+def add_user(username, email, password):
+    user = User(username=username, email=email, password=password)
     db.session.add(user)
     db.session.commit()
     return user
@@ -28,7 +28,8 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps({
                     'username': 'khanh',
-                    'email': 'khanhnguyen@gmail.com'
+                    'email': 'khanhnguyen@gmail.com',
+                    'password': 'thisisapassword'
                 }),
                 content_type='application/json'
             )
@@ -53,7 +54,21 @@ class TestUserService(BaseTestCase):
         with self.client:
             response = self.client.post(
                 '/users',
-                data=json.dumps({'email': 'khanhnguyen@gmail.com'}),
+                data=json.dumps({'email': 'khanhnguyen@gmail.com', 'password': 'thisisapassword'}),
+                content_type='application/json'
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('Invalid payload.', data['message'])
+            self.assertIn('fail', data['status'])
+
+    def test_add_user_invalid_json_keys_no_password(self):
+        with self.client:
+            response = self.client.post(
+                '/users',
+                data=json.dumps(dict(
+                    username='khanh',
+                    email='khanhnguyen@gmail.com')),
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
@@ -67,7 +82,8 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps({
                     'username': 'khanh',
-                    'email': 'khanhnguyen@gmail.com'
+                    'email': 'khanhnguyen@gmail.com',
+                    'password': 'thisisapassword'
                 }),
                 content_type='application/json'
             )
@@ -75,7 +91,8 @@ class TestUserService(BaseTestCase):
                 '/users',
                 data=json.dumps({
                     'username': 'khanh',
-                    'email': 'khanhnguyen@gmail.com'
+                    'email': 'khanhnguyen@gmail.com',
+                    'password': 'thisisapassword'
                 }),
                 content_type='application/json'
             )
@@ -85,7 +102,7 @@ class TestUserService(BaseTestCase):
             self.assertIn('fail', data['status'])
 
     def test_single_user(self):
-        user = add_user('khanh', 'khanhnguyen@gmail.com')
+        user = add_user('khanh', 'khanhnguyen@gmail.com', 'thisisapassword')
         with self.client:
             response = self.client.get(f'/users/{user.id}')
             data = json.loads(response.data.decode())
@@ -111,8 +128,8 @@ class TestUserService(BaseTestCase):
             self.assertIn('fail', data['status'])
 
     def test_all_users(self):
-        add_user('khanh', 'khanhnguyen@gmail.com')
-        add_user('thu', 'thuhoang@gmail.com')
+        add_user('khanh', 'khanhnguyen@gmail.com', 'thisisapassword')
+        add_user('thu', 'thuhoang@gmail.com', 'thisisapassword')
         with self.client:
             response = self.client.get('/users')
             data = json.loads(response.data.decode())
@@ -133,8 +150,8 @@ class TestUserService(BaseTestCase):
         self.assertIn(b'<p>No users!</p>', response.data)
 
     def test_main_with_users(self):
-        add_user('khanh', 'khanhnguyen@gmail.com')
-        add_user('thu', 'thuhoang@gmail.com')
+        add_user('khanh', 'khanhnguyen@gmail.com', 'thisisapassword')
+        add_user('thu', 'thuhoang@gmail.com', 'thisisapassword')
         with self.client:
             response = self.client.get('/')
             self.assertEqual(response.status_code, 200)
@@ -147,7 +164,7 @@ class TestUserService(BaseTestCase):
         with self.client:
             response = self.client.post(
                 '/',
-                data=dict(username='khanh', email='khanhnguyen@gmail.com'),
+                data=dict(username='khanh', email='khanhnguyen@gmail.com', password='thisisapassword'),
                 follow_redirects=True
             )
             self.assertEqual(response.status_code, 200)
