@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "/usr/local/bin/python3",
+    "emmet.includeLanguages": {
+        "javascript": "javascriptreact"
+      },
+      "emmet.triggerExpansionOnTab": true
+}

@@ -1,10 +1,13 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_cors import CORS
 
 # instantiate database
 db = SQLAlchemy()
-
+toolbar = DebugToolbarExtension()
+cors = CORS()
 
 def create_app(script_info=None):
     # instantiate the app
@@ -15,6 +18,8 @@ def create_app(script_info=None):
     app.config.from_object(app_settings)
 
     db.init_app(app)
+    toolbar.init_app(app)
+    cors.init_app(app)
 
     # register blueprints
     from project.api.users import users_blueprint
